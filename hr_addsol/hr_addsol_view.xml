@@ -137,7 +137,65 @@
             <field name="view_id" eval="addsol_hr_calendar_tree"/>
         </record>
 
+        <record model="ir.ui.view" id="addsol_hr_biometric_tree">
+            <field name="name">addsol.hr.biometric.tree</field>
+            <field name="model">addsol.hr.biometric</field>
+            <field name="arch" type="xml">
+                <tree string="Biometric Device Information" >
+                	<field name="machine_name"/>                    
+                    <field name="ip_addr"/>    
+                    <field name="port"/>                            
+                    <field name="code"/>           
+                </tree>
+            </field>
+        </record>
+        
+        <record model="ir.ui.view" id="addsol_hr_biometric_form">
+            <field name="name">addsol.hr.biometric.form</field>
+            <field name="model">addsol.hr.biometric</field>
+            <field name="arch" type="xml">
+                <form string="Biometric Device Information" version="7.0">
+                    <sheet>                       
+                        <group>
+                            <field name="code"/>
+                            <field name="machine_name"/>
+                        </group>
+                        <group>
+                        	<field name="ip_addr"/>
+                            <field name="port"/>
+                        </group>
+                        <group>
+                        	<field name="pwd"/>
+                            <field name="location"/>
+                        </group>
+                        <notebook>
+                        	<page string="Employee Information">
+                        		<field name="line_ids">
+		                        	<tree string="Employee Information" editable="bottom">
+		                        		<field name="employee_id"/>		                        		
+		                        		<field name="dept_id"/>
+		                        		<field name="related_user"/>
+		                        		<field name="attendance"/>	                        		
+		                        	</tree>
+		                        </field>
+	                        </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id="open_addsol_hr_biometric" model="ir.actions.act_window">
+            <field name="name">Biometric Device Information</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">addsol.hr.biometric</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
         <!-- Menus -->
+        
+		<menuitem action="open_addsol_hr_biometric" id="menu_addsol_hr_biometric" parent="hr.menu_hr_configuration" sequence="50"/>
 
         <menuitem action="open_addsol_hr_calendar" id="menu_addsol_hr_calendar" parent="hr_holidays.menu_open_ask_holidays" sequence="45"/>
 

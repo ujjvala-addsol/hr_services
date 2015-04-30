@@ -25,8 +25,6 @@ from datetime import datetime, timedelta
 from dateutil import relativedelta as rdelta
 
 from openerp.osv import fields, osv
-from openerp.tools.translate import _
-from openerp import SUPERUSER_ID
 # from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT, DEFAULT_SERVER_DATE_FORMAT
 
 class addsol_hr_employee(osv.osv):
@@ -73,26 +71,6 @@ class addsol_hr_employee(osv.osv):
         'total_days': fields.function(_count_total_days, type='integer', string="Total Present Days", store=True),
         'eligible': fields.function(_eligible_for_pl, type='boolean', string='Eligible for PL?', store=True),
     }
-
-    def create_user_for_employee(self, cr, uid, ids, context=None):
-        users_obj = self.pool.get('res.users')
-        user_ids = []
-        for empl in self.browse(cr, uid, ids, context=context):
-            if not empl.work_email:
-                raise osv.except_osv(_('Error!'), _("Please enter employee's email address."))
-            user_data = {
-                'name': empl.name,
-                'login': empl.work_email,
-                'email': empl.work_email
-            }
-            user_id = users_obj.create(cr, SUPERUSER_ID, user_data, context=context)
-            user_ids.append(user_id)
-            self.write(cr, uid, empl.id, {'user_id': user_id}, context=context)
-        try:
-            users_obj.action_reset_password(cr, SUPERUSER_ID, user_ids, context=context)
-        except:
-            pass
-        return True
 
 
 class addsol_hr_holidays_status(osv.osv):
@@ -215,36 +193,15 @@ class addsol_hr_calendar(osv.osv):
     _defaults = {
         'company_id': lambda s, cr, uid, c: s.pool.get('res.company')._company_default_get(cr, uid, 'addsol.hr.calendar', context=c),
     }
-    
+
 class addsol_hr_biometric(osv.osv):
     _name = 'addsol.hr.biometric'
     _description = "Biometric Device Information"
-    _rec_name = 'machine_name'
-
+    
     _columns = {
         'code': fields.integer('Device Code', required=True),
         'machine_name': fields.char('Device Name', required=True),
         'ip_addr': fields.char('IP Address', size=20),
-        'port' : fields.integer('Port'),
-        'pwd' : fields.char('Password'),
         'location': fields.char('Location', size=50),
-        'line_ids': fields.one2many('addsol.hr.biometric.line','device_id','Employee Details')
-        
     }
-    
-   
-class addsol_hr_biometric_line(osv.osv):
-    _name = 'addsol.hr.biometric.line'
-    _description = 'Employee Information'
-    
-    
-    _columns ={
-        'device_id': fields.many2one('addsol.hr.biometric', 'Device'),
-        'employee_id': fields.many2one('hr.employee', 'Employee',required=True),      
-        'dept_id': fields.related('employee_id', 'department_id',type='many2one',relation='hr.department',string='Department'),
-        'related_user': fields.related('employee_id','user_id',type='many2one',relation='res.users',string='Related User'),
-        'attendance': fields.related('employee_id','state',string='Attendance',type='selection',selection=[('absent', 'Absent'), ('present', 'Present')])
-        
-    }
-
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
