@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		<menuitem name="Code" id="base.menu_code" sequence="60"/>
+		<menuitem name="Code" id="menu_sale_code" parent="base.menu_code"/>
+			
+		  <record id="view_sale_code_tree" model="ir.ui.view">
+				<field name="name">sale.code.tree</field>
+				<field name="model">sale.code</field>
+				 <field name="arch" type="xml">
+					<tree string="Sales code">
+						<field name="name"/>
+						<field name="code"/>
+						<field name="description"/>
+						<field name="sequence_id"/>
+					</tree> 
+				</field>
+		</record> 
+			
+			
+		 <record id="view_sale_code_form" model="ir.ui.view">
+            <field name="name">sale.code.form</field>
+            <field name="model">sale.code</field>
+             <field name="arch" type="xml">
+                <form string="Sales Code" version="7.0">
+                    <label for="name" class="oe_edit_only"/>
+                    <h1><field name="name"/></h1>
+						<group>
+                            <field name="code"/>
+                            <field name="description"/>
+							<field name="sequence_id"/>
+                        </group>
+                </form> 
+            </field>
+        </record> 
+		
+		 <record id="action_sale_code" model="ir.actions.act_window">
+            <field name="name">Sales Code</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.code</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="view_sale_code_tree"/>
+            <field name="view_mode">tree,form</field>
+		</record>
+		
+		
+		<menuitem name="Code" id="menu_sale_code_code" action ="action_sale_code" parent="base.menu_sales" sequence="60" /> 
+ 		
+	</data>
+</openerp>

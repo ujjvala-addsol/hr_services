@@ -1,0 +1,77 @@
+<openerp>
+    <data>
+
+                        <!--Activity-->
+
+        <record id="act_chkapproved" model="workflow.activity">
+            <field name="wkf_id" ref="sale.wkf_sale"/>
+            <field name="name">chkapproved</field>
+            <field name="kind">function</field>
+            <field name="action">check_for_approval()</field>
+        </record>
+
+        <record id="act_waitapprove" model="workflow.activity">
+            <field name="wkf_id" ref="sale.wkf_sale"/>
+            <field name="name">waitforapprove</field>
+            <field name="kind">dummy</field>
+            
+        </record>
+
+        <record id="act_approve" model="workflow.activity">
+            <field name="wkf_id" ref="sale.wkf_sale"/>
+            <field name="name">approve</field>
+            <field name="kind">function</field>
+            <field name="action">action_my_new_function()</field>
+        </record>
+
+                    <!--Transition-->
+
+       <record id="sale.trans_draft_sent" model="workflow.transition">
+            <field name="act_from" ref="act_approve"/>
+            <field name="act_to" ref="sale.act_sent"/>
+            <field name="signal">quotation_sent</field>
+        </record>
+
+        <record id="sale.trans_draft_router" model="workflow.transition">
+            <field name="act_from" ref="act_approve"/>
+            <field name="act_to" ref="sale.act_router"/>
+            <field name="signal">order_confirm</field>
+        </record>  
+
+        <record id="trans_draft_chkapprove" model="workflow.transition">
+            <field name="act_from" ref="sale.act_draft"/>
+            <field name="act_to" ref="act_chkapproved"/>
+            <field name="signal">signal_check</field>
+        </record>  
+        
+        <record id="trans_draft_chkapprove" model="workflow.transition">
+            <field name="act_from" ref="sale.act_draft"/>
+            <field name="act_to" ref="act_approve"/>
+            <field name="signal">approve</field>
+        </record> 
+
+         <record id="trans_chkapprove_waitapprove" model="workflow.transition">
+            <field name="act_from" ref="act_chkapproved"/>
+            <field name="act_to" ref="act_waitapprove"/>
+        </record>  
+
+        <record id="trans_draft_approve" model="workflow.transition">
+            <field name="act_from" ref="act_waitapprove"/>
+            <field name="act_to" ref="act_approve"/>
+            <field name="signal">approve</field>
+        </record> 
+
+        
+        <record id="trans_chkapprove_confirm" model="workflow.transition">
+            <field name="act_from" ref="act_chkapproved"/>
+            <field name="act_to" ref="sale.act_router"/>
+            <field name="signal">order_confirm</field>
+        </record>        
+        
+        <record id="trans_approve_confirm" model="workflow.transition">
+            <field name="act_from" ref="act_approve"/>
+            <field name="act_to" ref="sale.act_router"/>
+            <field name="signal">order_confirm</field>
+        </record>
+    </data>
+</openerp>

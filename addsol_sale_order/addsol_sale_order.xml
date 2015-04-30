@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+   
+    <record model="ir.ui.view" id="addsol_sale_order">
+        <field name="name">addsol.sale.order.form2</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+                <field name='partner_id' position="after">
+                    <field name="po_no" />
+                </field>
+                <field name='po_no' position="after">
+					<field name="po_date"/>
+				</field> 
+				<field name='po_date' position="after">
+					<field name="pan_no"/>
+				</field> 
+				<field name='client_order_ref' position="after">
+					<field name="tin_no"/>
+				</field> 
+				<xpath expr="//form/sheet/group/group/field[@name='client_order_ref']" position="replace">
+                    <field name="ref"/>
+                </xpath> 
+				<field name='tin_no' position="after">
+					<field name="cst_no"/>
+				</field>
+				<field name='pan_no' position="after">
+					<field name="excise_control_code"/>
+				</field>
+				 <field name='cst_no' position="after">
+					<field name="code_id"/>
+				</field> 
+				<field name='excise_control_code' position="after">
+					<field name="property_payment_term"/>
+				</field> 
+ 				<field name='code_id' position="after">
+					<field name="credit"/>
+				</field>
+				
+				<field name='credit' position="after">
+					<field name="freight"/>
+				</field> 
+			    <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="after">
+					<field name="detail" />
+				</xpath>
+				<xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="after">
+					<field name="sale_price" />
+				</xpath>
+				<!--<field name="product_id" position="attributes">
+                    <attribute name="on_change">onchange_product(product_id, context)</attribute>
+				</field> -->
+            </field>
+        </record>
+
+         <record id="addsol_view_sales_order_filter" model="ir.ui.view">
+            <field name="name">addsol.sale.order.list.select</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <search string="Search Sales Order">
+                    
+                    <filter icon="terp-dolar_ok!" string="Waiting" domain="[('state','=','waitforapprove')]" help="Sales Order waiting for approval"/>
+                    
+               </search>
+            </field>
+        </record>
+
+        <record id="addsol_view_picking_form" model="ir.ui.view">
+            <field name="name">addsol_stock.picking.form</field>
+            <field name="model">stock.picking.out</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+               <xpath expr="//form/header/button[@name='button_cancel']" position="replace">
+                    <button name="button_cancel" states="assigned,confirmed,draft" string="Cancel Transfer" groups="base.group_sale_manager"/>
+                </xpath>
+            </field>
+        </record>
+  </data>
+</openerp>

@@ -38,15 +38,18 @@ class addsol_hr_employee(osv.osv):
         for emp in self.browse(cr, uid, ids, context=context):
             contract_ids = obj_contract.search(cr, uid, [('employee_id','=',emp.id),], order='date_start', context=context)
             res[emp.id] = 0.0
-#             for contract in obj_contract.browse(cr, uid, contract_ids, context=context):
-#                 end_date = datetime.strptime(contract.date_end, '%Y-%m-%d')
-#                 start_date = datetime.strptime(contract.date_start, '%Y-%m-%d')
-#                 rd = rdelta.relativedelta(end_date, start_date)
-#                 difference_in_years = "{0.years}.{0.months}".format(rd)
-#                 years = float(difference_in_years)
-#                 if float(rd.months) >= 11:
-#                     years = rd.years + 1.0
-#                 res[emp.id] += years
+            for contract in obj_contract.browse(cr, uid, contract_ids, context=context):
+                end_date = contract.date_end
+                if not end_date:
+                    end_date = time.strftime('%Y-%m-%d')
+                end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                start_date = datetime.strptime(contract.date_start, '%Y-%m-%d')
+                rd = rdelta.relativedelta(end_date, start_date)
+                difference_in_years = "{0.years}.{0.months}".format(rd)
+                years = float(difference_in_years)
+                if float(rd.months) >= 11:
+                    years = rd.years + 1.0
+                res[emp.id] += years
         return res
     
     def _count_total_days(self, cr, uid, ids, field_name, arg, context=None):

@@ -1,0 +1,43 @@
+<openerp>
+    <data>
+        <!-- Inherit the sale order model's form view and customize -->
+        <record id="sale_form_view" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Statusbar widget should also contain the new status -->
+                <field name="state" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="draft,my_new_state,sent,invoiced,done" statusbar_colors='{"invoice_except":"red","waiting_date":"blue"}'/>
+                </field>
+				 <field name="state" position="before">
+                  
+                    <!-- <button string="To Submit" type="workflow" name="signal_my_new_state_forward" states="draft" class="oe_highlight" group="base.group_sale_user"/> -->
+
+                 
+                    <button string="Approve" type="workflow" name="approve" states="draft" class="oe_highlight" groups="base.group_sale_manager"/> 
+
+					 
+
+					<button name="invoice_recreate" states="invoice_except" string="Recreate Invoice" groups="base.group_user"/>
+                        <button name="invoice_corrected" states="invoice_except" string="Ignore Exception" groups="base.group_user"/>
+                        <button name="action_quotation_send" string="Send by Email" type="object" states="my_new_state" class="oe_highlight" groups="base.group_user"/>
+         <!--                <button name="action_quotation_send" string="Send by Email" type="object" states="my_new_state" groups="base.group_user"/> -->
+                        <button name="print_quotation" string="Print" type="object" states="my_new_state" class="oe_highlight" groups="base.group_user"/>
+                        <!-- <button name="print_quotation" string="Print" type="object" states="my_new_state" groups="base.group_user"/> -->
+                        <!-- <button name="action_button_confirm" states="my_new_state" string="Confirm Sale" type="object" groups="base.group_user"/> -->
+                        <button name="action_button_confirm" states="my_new_state" string="Confirm Sale" class="oe_highlight" type="object" groups="base.group_user"/>
+                        <button name="action_view_invoice" string="View Invoice" type="object" class="oe_highlight"
+                            attrs="{'invisible': [('invoice_exists', '=', False)]}" groups="base.group_user"/>
+                       
+                     
+                        <button name="cancel" states="my_new_state" string="Cancel Quotation" groups="base.group_user"/>
+                       
+
+
+                    
+                </field> 
+            </field>
+        </record>
+    </data>
+</openerp>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <menuitem name="Sales Type" id="base.menu_type" sequence="60"/>
+        <menuitem name="Sales Type" id="menu_sale_type" parent="base.menu_type"/>
+
+        <record id="view_sale_type_tree" model="ir.ui.view">
+            <field name="name">sale.type.tree</field>
+            <field name="model">sale.type</field>
+             <field name="arch" type="xml">
+                <tree string="Sales type">
+                    <field name="name"/>
+                    <field name="prefix"/>
+                </tree> 
+            </field>
+        </record> 
+
+        <record id="view_sale_type_form" model="ir.ui.view">
+            <field name="name">sale.type.form</field>
+            <field name="model">sale.type</field>
+             <field name="arch" type="xml">
+                <form string="Sales type" version="7.0">
+                    <label for="name" class="oe_edit_only"/>
+                    <h1><field name="name"/></h1>
+                    <group>
+                        <field name="prefix"/>
+                        <field name="description" colspan="4"/>
+                    </group>
+                </form> 
+            </field>
+        </record> 
+
+         <record id="action_sale_type" model="ir.actions.act_window">
+            <field name="name">Sales Type</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.type</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="view_sale_type_tree"/>
+            <field name="view_mode">tree,form</field>
+        </record>
+        
+        <menuitem name="Type" id="menu_sale_type_type" action ="action_sale_type" parent="base.menu_sales" sequence="60" /> 
+
+
+        <!--Add buttons,states,fields on Sale Order-->
+
+        <record model="ir.ui.view" id="addsol_sale_order_form">
+            <field name="name">addsol.sale.order.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <field name="state" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="draft,approve,sent,invoiced,done" statusbar_colors='{"invoice_except":"red","waiting_date":"blue"}'/>
+                </field>
+                <xpath expr="//form/header/button[@name='action_quotation_send']" position="replace">
+                    <button name="action_quotation_send" string="Send by Email" type="object" states="approve" class="oe_highlight" groups="base.group_user"/>
+                </xpath>
+                <xpath expr="//form/header/button[@name='print_quotation']" position="replace">
+                    <button name="print_quotation" string="Print" type="object" states="approve" class="oe_highlight" groups="base.group_user"/>
+                </xpath>
+            
+                <xpath expr="//form/header/button[@name='action_button_confirm']" position="replace">
+                    <button name="action_button_confirm" states="approve" string="Confirm Sale" type="object" groups="base.group_user"/>
+                </xpath>
+                <field name="state" position="before">
+                    <button string="Check For Approval" name="signal_check" states="draft" class="oe_highlight" group="base.group_sale_user"/>
+                    <button string="Approve" name="approve" states="waitforapprove" class="oe_highlight" groups="base.group_sale_manager"/> 
+                </field> 
+                <field name='partner_id' position="after">
+                        <field name="po_no" />
+                        <field name="po_date"/>
+                        <field name="pan_no"/>
+                        <field name="excise_control_code"/>
+                        <field name="property_payment_term"/>
+                </field> 
+                <field name='client_order_ref' position="after">
+                    <field name="tin_no"/>
+                </field> 
+                <xpath expr="//form/sheet/group/group/field[@name='client_order_ref']" position="replace">
+                    <field name="ref"/>
+                </xpath> 
+                <field name='tin_no' position="after">
+                    <field name="cst_no"/>
+                    <field name="type_id"/>
+                    <field name="credit"/>
+                    <field name="freight"/>
+                </field>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="after">
+                    <field name="detail" />
+                    <field name="sale_price" />
+                </xpath>
+            </field>
+        </record>
+
+        <!--Add filter Waiting for Approval in search view-->
+ 
+        <record id="addsol_view_sales_order_filter" model="ir.ui.view">
+            <field name="name">addsol.sale.order.list.select</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <search string="Search Sales Order">
+                    
+                    <filter icon="terp-dolar_ok!" string="Waiting" domain="[('state','=','waitforapprove')]" help="Sales Order waiting for approval"/>
+                    
+               </search>
+            </field>
+        </record>
+        
+        <!--Hide Cancel Transfer button from user view -->
+
+        <record id="addsol_view_picking_form" model="ir.ui.view">
+            <field name="name">addsol_stock.picking.form</field>
+            <field name="model">stock.picking.out</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+               <xpath expr="//form/header/button[@name='button_cancel']" position="replace">
+                    <button name="button_cancel" states="assigned,confirmed,draft" string="Cancel Transfer" groups="base.group_sale_manager"/>
+                </xpath>
+            </field>
+        </record> 
+
+    </data>
+</openerp>

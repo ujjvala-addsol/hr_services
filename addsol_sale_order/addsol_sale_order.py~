@@ -1,0 +1,113 @@
+from openerp.osv import fields, osv
+import time
+import openerp.addons.decimal_precision as dp
+
+class addsol_sale_order(osv.osv):
+
+    _inherit = "sale.order"
+    _columns = {
+        'po_no': fields.char('PO Number', size=64),
+        'po_date': fields.date('PO Date'),
+        'pan_no':fields.related('partner_id','pan_no',type='char',string='PAN No',size=64),
+        'tin_no': fields.related('partner_id','tin_no',type='char',string='TIN No',size=64),
+        'cst_no':fields.related('partner_id','cst_no',type='char',string='CST No',size=64),
+        'excise_control_code':fields.related('partner_id','ecc_no',type='char',string='Excise Control Code',size=64),
+        'code_id':fields.many2one('partner_id','sale.code' ,'code'),
+        'credit':fields.related('partner_id','credit',type='char',string='Outstanding Balance'),
+        'property_payment_term':fields.related('partner_id','property_payment_term',relation='account.payment.term',type='many2one',string='Payment Term'),
+        'freight':fields.selection([('yes','YES'),('no','NO')],'Freight')
+        
+    }
+    
+  
+    
+    def onchange_partner(self, cr, uid, ids, part, context=None):
+        val = super(addsol_sale_order,self).onchange_partner_id(cr, uid, ids, part, context=None)
+        if not part:
+            return {'value': {'pan_no': False, 'tin_no': False,  'cst_no': False, 'excise_control_code': False,'credit':False,'property_payment_term':False, 'payment_term': False,'client_order_ref':False}}
+        
+        part = self.pool.get('res.partner').browse(cr, uid, part, context=context)
+        addr = self.pool.get('res.partner').address_get(cr, uid, [part.id], ['delivery', 'invoice', 'contact'])
+        pan_no = part.pan_no or False
+        tin_no = part.tin_no or False
+        cst_no = part.cst_no or False
+        excise_control_code = part.excise_no or False
+        credit = part.credit or False
+        payment_term = part.property_payment_term and part.property_payment_term.id or False
+        property_payment_term = part.property_payment_term and part.property_payment_term.id or False
+        pricelist = part.property_product_pricelist and part.property_product_pricelist.id or False
+        client_order_ref = part.ref or False
+        val = {
+            'partner_invoice_id': addr['invoice'],
+            'partner_shipping_id': addr['delivery'],
+            'payment_term': payment_term,
+            'property_payment_term': property_payment_term,
+            'pan_no': pan_no,
+            'tin_no': tin_no,
+            'cst_no': cst_no,
+            'excise_control_code': excise_control_code,
+            'credit': credit,
+            'client_order_ref': client_order_ref,
+        }
+        if pricelist:
+            val['pricelist_id'] = pricelist
+        return {'value': val}
+    
+    # def create(self, cr, uid, vals, context=None): 
+        # if (vals.get('name','/')=='/') and ( 'sale.code.name' == 'Excise'):
+            # vals['name'] = self.pool.get('ir.sequence').get(cr, uid, 'sale.excise') or '/'
+        # return super(addsol_sale_order, self).create(cr, uid, vals, context=context)  
+    
+    
+class addsol_sale_order_line(osv.osv):
+    
+    _inherit = "sale.order.line"
+    
+    _columns = {
+        'detail': fields.char('Detail',size=64),
+        'sale_price':fields.float('sale price',readonly=True,digits_compute= dp.get_precision('Product Price'))
+    }
+   
+    def product_id_change(self, cr, uid, ids, pricelist, product,qty=0,uom=False, qty_uos=0, uos=False, name='', partner_id=False,lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
+        value =  super(addsol_sale_order_line, self).product_id_change(cr, uid, ids, pricelist,product, qty, uom, qty_uos,uos, name, partner_id, lang,update_tax, date_order, packaging=packaging,fiscal_position=fiscal_position,flag=flag, context=context)
+        if not product:
+            return {'value': {'sale_price': False}}
+            
+        prod = self.pool.get('product.template').browse(cr, uid, product, context=context)
+        sale_price = prod.list_price or 0.0
+        print "\n\n\n======= price ==========", sale_price
+        # val ={
+             # 'sale_price': sale_price,
+            # }
+        val= value['value']
+        val.update({
+             'sale_price': sale_price,
+            })
+        value.update({'value':val})
+        return value
+       
+    # def product_id_change(self, cr, uid, ids,pricelist, product, qty=0,uom=False, qty_uos=0, uos=False,name='', partner_id=False,lang=False, update_tax=True,date_order=False, packaging=False,fiscal_position=False, flag=False,context=None):
+        # super(addsol_sale_order_line, self).product_id_change(cr, uid, ids, pricelist,product, qty, uom, qty_uos,uos, name, partner_id, lang,update_tax, date_order, packaging=packaging,fiscal_position=fiscal_position,flag=flag, context=context)
+        # if not pricelist:
+            # warn_msg = _('You have to select a pricelist or a customer in the sales form !\n'
+                    # 'Please set one before choosing a product.')
+            # warning_msgs += _("No Pricelist ! : ") + warn_msg +"\n\n"
+        # else:
+            # price = self.pool.get('product.pricelist').price_get(cr, uid, [pricelist],
+                    # product, qty or 1.0, partner_id, {
+                        # 'uom': uom or result.get('product_uom'),
+                        # 'date': date_order,
+                        # })[pricelist]
+            # if price is False:
+                # # warn_msg = _("Cannot find a pricelist line matching this product and quantity.\n"
+                        # # "You have to change either the product, the quantity or the pricelist.")
+
+                # # warning_msgs += _("No valid pricelist line found ! :") + warn_msg +"\n\n"
+            # # else:
+                # # result.update({'price_unit': price,'sale_price': price})
+        # # if warning_msgs:
+            # # warning = {
+                       # # 'title': _('Configuration Error!'),
+                       # # 'message' : warning_msgs
+                    # # }
+        # # return {'value': result, 'domain': domain, 'warning': warning}    
