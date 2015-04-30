@@ -231,10 +231,31 @@ class addsol_hr_biometric(osv.osv):
         'port' : fields.integer('Port'),
         'pwd' : fields.char('Password'),
         'location': fields.char('Location', size=50),
-        'line_ids': fields.one2many('addsol.hr.biometric.line','device_id','Employee Details')
-        
+        'line_ids': fields.one2many('addsol.hr.biometric.line','device_id','Employee Details'),
+        'state': fields.selection([('not_connected', 'Not Connected'), ('connected', 'Connected')], 'Status', readonly=True, required=True,),        
     }
     
+    _defaults = {
+        'state': 'not_connected',
+    }
+    
+    def device_connect(self, cr, uid, ids, *args):       
+        self.write(cr, uid, ids, {'state': 'connected'})
+        return True
+    
+    def download_data(self,cr,uid,ids,*args):
+        #emp_obj = self.pool.get('hr.employee')
+        total_no_of_days = 0      
+        for device in self.browse(cr, uid, ids):   
+            for emp in device.line_ids:           
+                total_no_of_days += emp.employee_id.total_days
+            
+            
+        raise osv.except_osv(_('Success'), _('Total Attendance is %s') % (total_no_of_days))
+        #return total_no_of_days
+                
+  
+addsol_hr_biometric()
    
 class addsol_hr_biometric_line(osv.osv):
     _name = 'addsol.hr.biometric.line'
@@ -249,5 +270,6 @@ class addsol_hr_biometric_line(osv.osv):
         'attendance': fields.related('employee_id','state',string='Attendance',type='selection',selection=[('absent', 'Absent'), ('present', 'Present')])
         
     }
+
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

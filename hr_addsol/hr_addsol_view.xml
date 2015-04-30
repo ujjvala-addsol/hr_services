@@ -155,6 +155,12 @@
             <field name="model">addsol.hr.biometric</field>
             <field name="arch" type="xml">
                 <form string="Biometric Device Information" version="7.0">
+                	<header>
+                        <button name="device_connect" string="Connect" states="not_connected" type="object" class="oe_highlight" />
+                        <button name="device_connect" string="Connect" states="connected" type="object"  />
+                        <button name="download_data" string="Download Data" states="connected" type="object" class="oe_highlight" />
+                        <field name="state" widget="statusbar" statusbar_visible="not_connected,connected"/>
+                    </header>
                     <sheet>                       
                         <group>
                             <field name="code"/>
